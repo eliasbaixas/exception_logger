@@ -1,3 +1,15 @@
+# Schema:
+#
+#   t.string   "exception_class"
+#   t.string   "controller_name"
+#   t.string   "action_name"
+#   t.text     "message"
+#   t.text     "backtrace"
+#   t.text     "environment"
+#   t.text     "request"
+#   t.datetime "created_at"
+#
+
 class LoggedException < ActiveRecord::Base
   class << self
     def create_from_exception(controller, exception, data)

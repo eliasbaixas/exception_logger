@@ -54,19 +54,30 @@ module ExceptionLoggable
     !self.class.local_addresses.detect { |addr| addr.include?(remote) }.nil?
   end
 
-  def rescue_action_in_public(exception)
+  def rescue_action_locally(exception)
+    super
     status = response_code_for_rescue(exception)
-    render_optional_error_file status
-    log_exception(exception) if status != :not_found
+    if APP_CONFIG['settings']['log_debug_exceptions'] && status != :not_found
+      log_exception(exception)
+    end
+  end
+
+  def rescue_action_in_public(exception)
+    super
+    logger.error "========= EXCEPTION =============" + exception.message
+    status = response_code_for_rescue(exception)
+    if status != :not_found
+      log_exception(exception)
+    end
   end
 
   def log_exception(exception)
     deliverer = self.class.exception_data
     data = case deliverer
-      when nil    then {}
-      when Symbol then send(deliverer)
-      when Proc   then deliverer.call(self)
-    end
+           when nil    then {}
+           when Symbol then send(deliverer)
+           when Proc   then deliverer.call(self)
+           end
 
     LoggedException.create_from_exception(self, exception, data)
   end
