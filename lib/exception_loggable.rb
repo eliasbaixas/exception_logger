@@ -57,7 +57,7 @@ module ExceptionLoggable
   def rescue_action_locally(exception)
     super
     status = response_code_for_rescue(exception)
-    if APP_CONFIG['settings']['log_debug_exceptions'] && status != :not_found
+    if AppConfig.log_debug_exceptions && status != :not_found
       log_exception(exception)
     end
   end
